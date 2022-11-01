@@ -45,6 +45,8 @@ ADC_HandleTypeDef hadc1;
 int sds_status=0;
 int f7_status=0;
 float voltage_value=0;
+int reset_status=0;
+int flag=0;
 
 /* USER CODE END PV */
 
@@ -98,9 +100,45 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	 f7_status=HAL_GPIO_ReadPin (GPIOA, GPIO_PIN_3);
-	 sds_status=HAL_GPIO_ReadPin(GPIOA, GPIO_Pin_4);
+	 f7_status=HAL_GPIO_ReadPin (GPIOA, f7_Pin);
+	 sds_status=HAL_GPIO_ReadPin(GPIOA, sds_Pin);
+	 reset_status=HAL_GPIO_ReadPin(GPIOA, reset_Pin);
+	 if(reset_status==1){
+		flag=0;
+	 }
+	 if(((voltage_value<=83)&(voltage_value>=65))&(f7_status==1)&(sds_status==1)&(flag=0)){
+		 HAL_GPIO_WritePin(GPIOA, vled_Pin, GPIO_PIN_RESET); //pa6 vled
+		 HAL_GPIO_WritePin(GPIOA, f7led_Pin, GPIO_PIN_RESET); //pa7 f7led
+		 HAL_GPIO_WritePin(GPIOA, sdcled_Pin, GPIO_PIN_RESET); //pa8
+		 HAL_GPIO_WritePin(GPIOA, sdsled_Pin, GPIO_PIN_RESET); //pa9
+		 //brake release
 
+	 }
+	 else{
+		 flag=1;
+		 HAL_GPIO_WritePin(GPIOA, sdcled_Pin, GPIO_PIN_RESET); //pa8
+		 //brake actuate
+
+		 if(!((voltage_value<=83)&(voltage_value>=65))){
+			 HAL_GPIO_WritePin(GPIOA, vled_Pin, GPIO_PIN_SET); //pa6 vled
+		 }
+		 else{
+			 HAL_GPIO_WritePin(GPIOA, vled_Pin, GPIO_PIN_RESET);
+		 }
+		 if(f7_status==0){
+			 HAL_GPIO_WritePin(GPIOA, f7led_Pin, GPIO_PIN_SET); //pa7 f7led
+		 }
+		 else{
+			 HAL_GPIO_WritePin(GPIOA, f7led_Pin, GPIO_PIN_RESET); //pa7 f7led
+		 }
+		 if(sds_status==0){// check once
+			 HAL_GPIO_WritePin(GPIOA, sdsled_Pin, GPIO_PIN_SET); //pa9
+		 }
+		 else{
+			 HAL_GPIO_WritePin(GPIOA, sdsled_Pin, GPIO_PIN_RESET); //pa9
+		 }
+
+	 }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
