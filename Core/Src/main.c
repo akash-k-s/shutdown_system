@@ -45,6 +45,8 @@ ADC_HandleTypeDef hadc1;
 int sds_status=0;
 int f7_status=0;
 float voltage_value=0;
+int adc_value=0;
+float adc_voltage=0;
 int reset_status=0;
 int flag=0;
 
@@ -93,7 +95,7 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_ADCEx_Calibration_Start(&hadc1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,6 +105,11 @@ int main(void)
 	 f7_status=HAL_GPIO_ReadPin (GPIOA, f7_Pin);
 	 sds_status=HAL_GPIO_ReadPin(GPIOA, sds_Pin);
 	 reset_status=HAL_GPIO_ReadPin(GPIOA, reset_Pin);
+	 HAL_ADC_Start(&hadc1);
+	 HAL_ADC_PollForConversion(&hadc1, 0);
+	 adc_value = HAL_ADC_GetValue(&hadc1);// voltage in 4096
+	 adc_voltage=3.3*(adc_value/4095); // voltage in 0-3.3v
+	 voltage_value=adc_voltage*((10000+330)/330);//battery voltage
 	 if(reset_status==1){
 		flag=0;
 	 }
